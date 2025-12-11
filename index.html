@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>REVA Wellness — Educational Health System</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="REVA Wellness — educational health web app. Local-only demo with per-user scoped storage." />
+</head>
+<body>
+  <!-- Top fixed header -->
+  <header class="top-header" role="banner">
+    <div class="header-inner container">
+      <div class="brand">
+        <div class="logo-blob" aria-hidden="true">
+          <!-- small SVG logo -->
+          <svg width="48" height="48" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs><linearGradient id="gA" x1="0" x2="1"><stop offset="0" stop-color="#10B981"/><stop offset="1" stop-color="#059669"/></linearGradient></defs>
+            <rect width="24" height="24" rx="5" fill="url(#gA)"/>
+            <path d="M6 12c0-2.5 3.5-4 5-4s5 1.5 5 4-3.5 4-5 4-5-1.5-5-4z" fill="#fff" opacity="0.95"/>
+          </svg>
+        </div>
+        <div class="brand-title">REVA <span class="brand-strong">Wellness</span></div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnUser" class="btn ghost small" title="Login">Login</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Left sidebar -->
+  <aside class="side-nav" role="navigation" aria-label="Main navigation">
+    <ul class="side-list" role="menubar" aria-label="Primary">
+      <li><a href="#/" data-route="/">Home</a></li>
+      <li><a href="#/dashboard" data-route="/dashboard">Dashboard</a></li>
+      <li><a href="#/logs" data-route="/logs">Logs</a></li>
+      <li><a href="#/reminders" data-route="/reminders">Reminders</a></li>
+      <li><a href="#/appointments" data-route="/appointments">Appointments</a></li>
+      <li><a href="#/resources" data-route="/resources">Resources</a></li>
+      <li><a href="#/education" data-route="/education">Health Info</a></li>
+      <li><a href="#/assessment" data-route="/assessment">Self-Check</a></li>
+      <li><a href="#/contacts" data-route="/contacts">Contacts</a></li>
+      <li><a href="#/admin" data-route="/admin">Admin</a></li>
+    </ul>
+
+    <!-- Buttons (no navigation collision) -->
+    <div class="side-actions" style="margin-top:14px;display:flex;flex-direction:column;gap:6px">
+      <button class="side-btn" id="openContactSide" type="button">Contact (modal)</button>
+      <button class="side-btn" id="openFaqSide" type="button">FAQ (modal)</button>
+    </div>
+
+    <div class="side-footer small muted">
+      <div id="currentUser">Guest</div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main id="app" class="main" role="main" tabindex="-1"></main>
+
+  <!-- Fixed bottom footer -->
+  <footer class="fixed-footer" role="contentinfo">
+    <div class="container footer-inner">© <span id="year">2025</span> REVA Wellness — All rights reserved</div>
+  </footer>
+
+  <!-- Generic modal used for simple content -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card large" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      <h3 id="modalTitle"></h3>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Login modal -->
+  <div id="loginModal" class="modal" aria-hidden="true">
+    <div class="modal-card auth-card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <button class="modal-close" id="loginClose" aria-label="Close">✕</button>
+      <h3 id="loginTitle">Login</h3>
+      <div class="auth-grid">
+        <div class="auth-left">
+          <div class="login-logo" aria-hidden="true">
+            <svg width="72" height="72" viewBox="0 0 24 24"><defs><linearGradient id="lg2" x1="0" x2="1"><stop offset="0" stop-color="#10B981"/><stop offset="1" stop-color="#059669"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="url(#lg2)"></rect><path d="M7 12c0-2.5 3.5-4 5-4s5 1.5 5 4-3.5 4-5 4-5-1.5-5-4z" fill="#fff"/></svg>
+          </div>
+
+          <div class="controls" style="margin-top:8px">
+            <button class="btn oauth light" id="googleLogin">Continue with Google</button>
+            <button class="btn oauth fb" id="facebookLogin">Continue with Facebook</button>
+          </div>
+        </div>
+
+        <div class="auth-right">
+          <form id="loginForm">
+            <label>Email<input id="loginEmail" type="email" required placeholder="you@example.com" /></label>
+            <label>Password<input id="loginPass" type="password" required placeholder="Password" /></label>
+            <div class="controls" style="margin-top:10px">
+              <button class="btn" id="doLogin" type="submit">Login</button>
+              <button class="btn ghost" id="openRegister" type="button">Register</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register modal -->
+  <div id="registerModal" class="modal" aria-hidden="true">
+    <div class="modal-card large" role="dialog" aria-modal="true" aria-labelledby="regTitle">
+      <button class="modal-close" id="regClose" aria-label="Close">✕</button>
+      <h3 id="regTitle">Create account</h3>
+      <form id="registerFormMain">
+        <label>Name<input id="regFullName" type="text" required placeholder="Full name" /></label>
+        <label>Email<input id="regEmailMain" type="email" required placeholder="you@example.com" /></label>
+        <label>Password<input id="regPassMain" type="password" required placeholder="Create password" /></label>
+        <div class="controls" style="margin-top:12px">
+          <button class="btn" id="createAccount" type="submit">Create account</button>
+          <button class="btn ghost" id="cancelRegisterMain" type="button">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin login modal -->
+  <div id="adminLoginModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="admTitle">
+      <button class="modal-close" id="adminModalClose" aria-label="Close">✕</button>
+      <h3 id="admTitle">Admin Login</h3>
+      <form id="adminLoginForm">
+        <label>Admin Email<input id="adminEmail" type="email" required placeholder="admin@example.com" /></label>
+        <label>Password<input id="adminPassword" type="password" required placeholder="Password" /></label>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn" id="doAdminLogin" type="submit">Sign in</button>
+          <button class="btn ghost" id="adminCancel" type="button">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Contact modal (centered) -->
+  <div id="contactModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+      <button class="modal-close" id="contactClose" aria-label="Close">✕</button>
+      <h3 id="contactTitle">Contact us</h3>
+      <form id="contactFormModal">
+        <label>Name<input id="cName" type="text" placeholder="Your name" required /></label>
+        <label>Email<input id="cEmail" type="email" placeholder="you@example.com" required /></label>
+        <label>Message<textarea id="cMsg" placeholder="Short message" required></textarea></label>
+        <div class="controls" style="margin-top:10px"><button class="btn" type="submit">Send</button><button class="btn ghost" id="contactCancel" type="button">Cancel</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FAQ modal (centered) -->
+  <div id="faqModal" class="modal" aria-hidden="true">
+    <div class="modal-card large" role="dialog" aria-modal="true" aria-labelledby="faqTitle">
+      <button class="modal-close" id="faqClose" aria-label="Close">✕</button>
+      <h3 id="faqTitle">Frequently Asked Questions</h3>
+
+      <div class="faq-item-modal">
+        <button class="faq-q-modal">How do I add a daily log?</button>
+        <div class="faq-a-modal">Open Logs from the sidebar, fill the date and mood, optionally add symptoms/notes, then click Save. Edit or delete entries using the Recent area.</div>
+      </div>
+
+      <div class="faq-item-modal">
+        <button class="faq-q-modal">Is my data shared?</button>
+        <div class="faq-a-modal">In this demo your data is stored locally on your device. Export CSV from Logs to share with a clinician.</div>
+      </div>
+
+      <div class="faq-item-modal">
+        <button class="faq-q-modal">How do permissions work?</button>
+        <div class="faq-a-modal">Registered users see only their own records. Admin accounts can view all users (admin must sign in).</div>
+      </div>
+
+      <div class="faq-item-modal">
+        <button class="faq-q-modal">Who can become admin?</button>
+        <div class="faq-a-modal">Admin accounts are created by the system owner. In this demo use the provided demo admin credentials.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
